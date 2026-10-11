@@ -1,0 +1,9 @@
+.git
+__pycache__
+*.pyc
+mlruns
+mlflow.db
+mlartifacts
+notebooks
+docs
+tests

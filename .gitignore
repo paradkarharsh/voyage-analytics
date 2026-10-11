@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+mlruns/
+mlflow.db
+mlartifacts/
+.ipynb_checkpoints/
+.pytest_cache/
+models/metrics_*.json

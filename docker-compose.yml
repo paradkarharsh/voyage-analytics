@@ -1,0 +1,27 @@
+# docker compose up --build   ->  API :5000, Streamlit :8501, MLflow UI :5001
+services:
+  api:
+    build: .
+    image: voyage-api:latest
+    ports: ["5000:5000"]
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    image: voyage-dashboard:latest
+    environment:
+      API_URL: http://api:5000
+    ports: ["8501:8501"]
+    depends_on: [api]
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlartifacts
+    ports: ["5001:5000"]
+    volumes: ["mlflow-data:/mlartifacts"]
+
+volumes:
+  mlflow-data:

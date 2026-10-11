@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voyage-api
+  namespace: voyage
+  labels: {app: voyage-api}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: voyage-api}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  template:
+    metadata:
+      labels: {app: voyage-api}
+    spec:
+      containers:
+        - name: api
+          image: voyage-api:latest        # CI replaces with <registry>/voyage-api:<git-sha>
+          imagePullPolicy: IfNotPresent   # use "Always" with a registry
+          ports: [{containerPort: 5000}]
+          readinessProbe:
+            httpGet: {path: /ready, port: 5000}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: 5000}
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 200m, memory: 384Mi}
+            limits: {cpu: "1", memory: 1Gi}

@@ -1,0 +1,15 @@
+# Horizontal Pod Autoscaler – scales the API between 2 and 8 pods on CPU load (needs metrics-server)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: voyage-api
+  namespace: voyage
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: voyage-api}
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: 60}

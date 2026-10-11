@@ -1,0 +1,76 @@
+{
+  "flight_price": {
+    "best": "xgboost",
+    "results": {
+      "linear_regression": {
+        "rmse": 103.16860348352094,
+        "mae": 81.29080373505509,
+        "r2": 0.9192242159654631,
+        "cv_r2": 0.9185787633241004,
+        "train_seconds": 2.097053289413452
+      },
+      "random_forest": {
+        "rmse": 5.704244286841649,
+        "mae": 1.5548180547346946,
+        "r2": 0.9997530651931008,
+        "cv_r2": 0.9997309467050464,
+        "train_seconds": 16.515064477920532
+      },
+      "xgboost": {
+        "rmse": 0.007390762562920124,
+        "mae": 0.0056110852235355,
+        "r2": 0.9999999995854618,
+        "cv_r2": 0.9999999990379447,
+        "train_seconds": 5.531234264373779
+      }
+    }
+  },
+  "gender": {
+    "best": "hist_gradient_boosting",
+    "beats_baseline": true,
+    "results": {
+      "baseline_majority": {
+        "cv_accuracy": 0.33768311236687676,
+        "cv_f1_macro": 0.16829189329189329,
+        "test_accuracy": 0.3358208955223881,
+        "test_f1_macro": 0.1675977653631285
+      },
+      "logistic_regression": {
+        "cv_accuracy": 0.3292762442947185,
+        "cv_f1_macro": 0.3255363960111859,
+        "test_accuracy": 0.3582089552238806,
+        "test_f1_macro": 0.3578810716741751
+      },
+      "random_forest": {
+        "cv_accuracy": 0.3236383394914149,
+        "cv_f1_macro": 0.3214265528313017,
+        "test_accuracy": 0.3582089552238806,
+        "test_f1_macro": 0.35549866600577157
+      },
+      "hist_gradient_boosting": {
+        "cv_accuracy": 0.33209302325581397,
+        "cv_f1_macro": 0.3303597868685838,
+        "test_accuracy": 0.34328358208955223,
+        "test_f1_macro": 0.34202870387581186
+      }
+    }
+  },
+  "recommender": {
+    "hit@1": {
+      "hybrid": 0.1205,
+      "popularity": 0.1221,
+      "random": 0.1111111111111111
+    },
+    "hit@3": {
+      "hybrid": 0.3679,
+      "popularity": 0.3494,
+      "random": 0.3333333333333333
+    },
+    "hit@5": {
+      "hybrid": 0.612,
+      "popularity": 0.5984,
+      "random": 0.5555555555555556
+    },
+    "n_eval_users": 1245
+  }
+}
