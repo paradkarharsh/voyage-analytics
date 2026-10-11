@@ -3,8 +3,17 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 import time
 from pathlib import Path
+
+# Ensure 'src' and root repo directory are on sys.path
+_ROOT = Path(__file__).resolve().parents[1]
+_SRC = _ROOT / "src"
+if _SRC.exists() and str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 import joblib
 import pandas as pd
@@ -181,5 +190,18 @@ def get_app() -> Flask:  # gunicorn entrypoint: gunicorn "api.app:get_app()"
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    create_app().run(host="0.0.0.0", port=5000)
+    is_streamlit = False
+    try:
+        import streamlit as st
+        if hasattr(st, "runtime") and st.runtime.exists():
+            is_streamlit = True
+    except Exception:
+        pass
+
+    if is_streamlit:
+        import runpy
+        _st_app = _ROOT / "streamlit_app" / "app.py"
+        runpy.run_path(str(_st_app), run_name="__main__")
+    else:
+        logging.basicConfig(level=logging.INFO)
+        create_app().run(host="0.0.0.0", port=5000)

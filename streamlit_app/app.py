@@ -2,7 +2,16 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
+
+# Ensure 'src' and repo root are on sys.path
+_ROOT = Path(__file__).resolve().parents[1]
+_SRC = _ROOT / "src"
+if _SRC.exists() and str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
 import pandas as pd
 import plotly.express as px
@@ -10,23 +19,46 @@ import requests
 import streamlit as st
 
 API_URL = os.getenv("API_URL", "http://localhost:5000").rstrip("/")
-DATA_DIR = Path(os.getenv("VOYAGE_DATA_DIR", Path(__file__).resolve().parents[1] / "data" / "raw"))
+DATA_DIR = Path(os.getenv("VOYAGE_DATA_DIR", _ROOT / "data" / "raw"))
 
 st.set_page_config(page_title="Voyage Analytics", page_icon="✈️", layout="wide")
 
 
 # ------------------------------------------------------------------ helpers
+@st.cache_resource
+def get_local_client():
+    """In-memory Flask client for standalone / Streamlit Cloud deployments."""
+    from api.app import create_app
+    return create_app().test_client()
+
+
 def api(method: str, path: str, **kw):
     try:
-        r = requests.request(method, f"{API_URL}{path}", timeout=15, **kw)
+        r = requests.request(method, f"{API_URL}{path}", timeout=3, **kw)
         data = r.json()
         if r.status_code >= 400:
             st.error(data.get("error", f"API error {r.status_code}"))
             return None
         return data
-    except requests.RequestException as e:
-        st.error(f"Cannot reach the API at {API_URL}. Start it with `make serve` or docker compose. ({e})")
-        return None
+    except requests.RequestException:
+        # Fall back to in-memory Flask client (e.g. on Streamlit Cloud where API server isn't running)
+        try:
+            client = get_local_client()
+            m = method.upper()
+            if m == "GET":
+                resp = client.get(path, query_string=kw.get("params"))
+            elif m == "POST":
+                resp = client.post(path, json=kw.get("json"))
+            else:
+                resp = client.open(path, method=m, json=kw.get("json"))
+            data = resp.get_json()
+            if resp.status_code >= 400:
+                st.error((data or {}).get("error", f"API error {resp.status_code}"))
+                return None
+            return data
+        except Exception as e:
+            st.error(f"Cannot reach the API at {API_URL} and in-memory execution failed: {e}")
+            return None
 
 
 @st.cache_data(ttl=300)
